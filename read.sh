@@ -1,5 +1,6 @@
 rm .a
-cd ~/Desktop/カルテ
+echo 自分のクローンしたディレクトリに移動↓
+cd ~/Documents/Calte
 clear
 manu(){
   echo --------------仕事を始めます------------------
