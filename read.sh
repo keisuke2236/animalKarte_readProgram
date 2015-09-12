@@ -1,6 +1,7 @@
 rm .a
-echo 自分のクローンしたディレクトリに移動↓
-cd ~/Documents/Calte
+atsutil databases -removeUser
+cd ~/Desktop/カルテ
+alias ql='qlmanage -p "$@" >& /dev/null'
 clear
 manu(){
   echo --------------仕事を始めます------------------
@@ -10,28 +11,50 @@ manu(){
   echo 間違えた：何も入力せずエンターで1つ前に戻る
   echo 注意　　：カルテ読込後に行う事
   echo
+  echo note　　:伝言ノートを見ます
 }
 manu
+
 
 manua(){
   clear
   echo ----------------マニュアル--------------------
-  echo 終了方法：左上のバツを押せば絶対消えます
+  echo 【終了方法】左上のバツを押せば絶対消えます
   echo
-  echo 使用方法：画面に出てくる通りに入力します
+  echo 【使用方法】画面に出てくる通りに入力します
   echo 
-  echo 間違えた：何も入力せずエンターで1つ前に戻る
+  echo 【間違えた】何も入力せずエンターで1つ前に戻る
   echo 
-  echo 注意　　：カルテを全て読み込んだ後に行う事
+  echo 【注意】　　カルテを全て読み込んだ後に行う事
   echo 
-  echo 表示が変：日本語を消すとたまに文字が残ります
-  echo 実際には消えているのでそのまま入力して下さい
+  echo 【日本語を消すと文字が残る】
+  echo deleteを連打しても残る場合無視して入力
+  echo 実際には消えているので問題ありません
   echo 
-  echo 作業後　：エクセルに貼り付ける文が完成してます
+  echo 【作業後】エクセルに貼り付ける文が完成してます
+  echo ----------------------------------------------
+  echo 　　【カルテの名前が変更されない場合】
+  echo カルテの名前が001.pdf  002.pdfというように
+  echo "            なっていることを確認しましょう"
+  echo
+  echo ----------------------------------------------
+  echo 【ファイルが開かない場合以下を確認して下さい】
+  echo ※以下の３つはデスクトップに置いておくこと
+  echo 来院なしカルテの場合　来院の文字を必ず入れる
+  echo 死亡カルテの場合　死亡という文字を必ず入れる
+  echo 伝言ノートの場合　伝言という文字を必ず入れる
+  echo
+  echo ----------------------------------------------
+  echo 　　　　　　　【起動方法】
+  echo 必ずデスクトップのカルテフォルダに入っている
+  echo カルテ読み込みソフトをクリックで起動する事！
+  echo ----------------------------------------------
+  echo 【エクセルに貼り付けるデータが見つからない】
+  echo optionを押しながらvを押すと一覧がでます
+  echo そこから選んでください
   echo 
   echo 連絡先　rorensu2236@gmail.com
-  echo ----------------------------------------------
-  echo "　　　　【　エンターを押すと閉じます　】　　　　"
+  echo -n "　　　　【　エンターを押すと閉じます　】　　　　"
   read waitingnow
   clear
   about
@@ -50,14 +73,38 @@ about(){
 status(){
   echo ""
   echo ""
-  echo --------------------------
+  echo -----------------------------
   date
   echo 読み込み枚数：$allMai
   echo カルテ数：$allCount
-  echo --------------------------
+  echo -----------------------------
+  echo 
+  echo "　　　　【　エンターを押すと閉じます　】　　　　"
   read waiting
   clear
   about
+}
+
+end(){
+clear
+echo ----------------スコア-----------------
+echo カルテ数：$allCount
+echo 枚数   ：$allMai
+echo お疲れ様でした
+echo --------------------------------------
+echo 
+echo "エクセルを開き"
+echo "　　読み込んだデータを貼り付けてください"
+echo 
+echo "s :死亡カルテのエクセルを開く"
+echo "r :来院なしカルテのエクセルを開く"
+read sel
+if [ "$sel" = "s" ]; then
+  open ~/Desktop/*死亡*.xlsx
+elif [ "$sel" = "r" ]; then
+  open ~/Desktop/*来院*.xlsx
+fi
+killall Terminal
 }
 
 allCount=0
@@ -81,7 +128,7 @@ about
         now="2"
       fi
       if [ "$num" = "end" ]; then
-        break
+        end
       fi
 
       if [ "$num" = "status" ]; then
@@ -90,6 +137,10 @@ about
       fi
       if [ "$num" = "manual" ]; then
         manua
+        now="1"
+      fi
+      if [ "$num" = "note" ]; then
+        open ~/Desktop/伝言ノート.docx
         now="1"
       fi
       ;;
@@ -191,9 +242,9 @@ else
  for (( i = 2 ; i < $file ; i++ ))
  do
    if [ $i -gt 9 ] ;then
-    qlmanage -p 0$i.pdf "$@" >& /dev/null&
+    ql 0$i.pdf
   else
-    qlmanage -p 00$i.pdf "$@" >& /dev/null&
+    ql -p 00$i.pdf
   fi
   clear
   echo ------------------------------
@@ -250,11 +301,5 @@ ls -F | grep -v /
 cd ../
 echo ————————————————————————————————————
 done
-clear
-echo ----------------スコア-----------------
-echo カルテ数：$allCount
-echo 枚数   ：$allMai
-echo お疲れ様でした
-echo --------------------------------------
-read
-killall Terminal
+
+
