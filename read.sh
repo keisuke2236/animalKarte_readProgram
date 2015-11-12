@@ -1,7 +1,8 @@
-rm .a
+rm -rf ~/.a
+touch ~/.a
 atsutil databases -removeUser
-cd ~/Desktop/カルテ
 alias ql='qlmanage -p "$@" >& /dev/null'
+cd ~/Desktop/*animal*
 clear
 manu(){
   echo --------------仕事を始めます------------------
@@ -12,6 +13,7 @@ manu(){
   echo 注意　　：カルテ読込後に行う事
   echo
   echo note　　:伝言ノートを見ます
+  echo -------------------------------------------
 }
 manu
 
@@ -27,11 +29,9 @@ manua(){
   echo 
   echo 【注意】　　カルテを全て読み込んだ後に行う事
   echo 
-  echo 【日本語を消すと文字が残る】
-  echo deleteを連打しても残る場合無視して入力
-  echo 実際には消えているので問題ありません
-  echo 
   echo 【作業後】エクセルに貼り付ける文が完成してます
+  echo  カルテ番号の欄にカーソルを合わせ
+  echo  　　　　　　　　　　貼り付けを行ってください
   echo ----------------------------------------------
   echo 　　【カルテの名前が変更されない場合】
   echo カルテの名前が001.pdf  002.pdfというように
@@ -62,7 +62,12 @@ manua(){
 
 about(){
   now="1"
-  echo ------------------ 操作方法 ------------------
+  if [ "$modo" = 1 ]; then
+    echo ----------- 死亡カルテモード -------------
+  fi
+  if [ "$modo" = 2 ]; then
+    echo ---------- 来院なしカルテモード -----------
+  fi
   echo 【エンターキー:１つ前に戻る】
   echo 【end   　　　:終了する】
   echo 【status　　　:現在の状況を見る】
@@ -110,7 +115,25 @@ killall Terminal
 allCount=0
 allMai=0
 now=1
-excell=`date +%Y.%m.%d`
+echo -en `date +%Y.%m.%d` >> ~/.a
+echo 
+while :
+do
+  echo "今日読み込むカルテの種類を選択してください"
+  echo "  【1:死亡カルテ  来院なしカルテ:2】"
+  echo -n "読込モード:"
+  read modo
+  if [ "$modo" = "1" ]; then
+    break;
+  fi
+  if [ "$modo" = "2" ]; then
+    break;
+  fi
+  echo 
+  echo "   【半角入力か確認してください】"
+  echo 
+done
+clear
 while : 
 do
 about
@@ -118,7 +141,7 @@ about
   do
     case "$now" in
       "1" ) 
-      echo -n カルテ番号：
+      echo -n "カルテ番号　："
       read num
       if [ "$num" = "" ]; then
         now="1"
@@ -140,77 +163,126 @@ about
         now="1"
       fi
       if [ "$num" = "note" ]; then
-        open ~/Desktop/伝言ノート.docx
+        open ~/Desktop/伝言ノート*
         now="1"
       fi
       ;;
       
       "2" ) 
-      echo -n 苗字：
+      echo -n "苗字　　　　："
       read firstName
       if [ "$firstName" = "" ]; then
         now="1"
-        echo "【       ↓  ↓  ↓  打ち直します  ↓  ↓  ↓     】"
+        echo "【▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼打ち直します▼▼▼▼▼▼▼▼▼▼▼▼▼▼】"
       else
         now="3"
       fi
       ;;
 
       "3" ) 
-      echo -n ペットの名前：
+      echo -n "ペットの名前："
       read secondName
       if [ "$secondName" = "" ]; then
         now="2"
-        echo "【       ↓  ↓  ↓  打ち直します  ↓  ↓  ↓     】"
+        echo "【▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼打ち直します▼▼▼▼▼▼▼▼▼▼▼▼▼▼】"
       else
         now="4"
       fi
       ;;
       
       "4" )
-      echo -n マスターシート日付：
+      echo -n "表紙の日付　："
       read day
       if [ "$day" = "" ]; then
         now="3"
-        echo "【       ↓  ↓  ↓  打ち直します  ↓  ↓  ↓     】"
+        echo "【▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼打ち直します▼▼▼▼▼▼▼▼▼▼▼▼▼▼】"
       else
+        if [ "$modo" = "2" ]; then
+          now="5"
+        else
+          now="41"
+        fi 
+      fi
+      ;;
+
+      "41" ) 
+      echo -n "死亡日　　　："
+      read dead
+      if [ "$dead" = "" ]; then
+        now="4"
+        echo "【▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼打ち直します▼▼▼▼▼▼▼▼▼▼▼▼▼▼】"
+      else
+        now="42"
+      fi
+      ;;
+
+      "42" ) 
+      echo "      【1:電話 2:お花 3:FAX 4:来院】"
+      echo -n "通知方法　　："
+      read dead2
+      if [ "$dead2" = "" ]; then
+        now="41"
+        echo "【▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼打ち直します▼▼▼▼▼▼▼▼▼▼▼▼▼▼】"
+      else
+        if [ "$dead2" = "1" ]; then
+          dead2="電話"
+        fi
+        if [ "$dead2" = "2" ]; then
+          dead2="お花"
+        fi
+        if [ "$dead2" = "3" ]; then
+          dead2="FAX"
+        fi
+        if [ "$dead2" = "4" ]; then
+          dead2="来院"
+        fi
         now="5"
       fi
       ;;
       
+
+      
       "5" ) 
-      echo -n カルテ枚数：
+      echo -n "カルテ枚数　："
       read mai
       if [ "$mai" = "" ]; then
-        now="4"
-        echo "【       ↓  ↓  ↓  打ち直します  ↓  ↓  ↓     】"
+        now="41"
+        echo "【▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼打ち直します▼▼▼▼▼▼▼▼▼▼▼▼▼▼】"
       else
         now="6"
       fi
       ;;
       
       "6" ) 
-      echo -n 最終来院日：
+      echo "      【1:マスターシートの日付と同じ】"
+      echo -n "最終来院日　："
       read final
       if [ "$final" = "" ]; then
         now="5"
-        echo "【       ↓  ↓  ↓  打ち直します  ↓  ↓  ↓     】"
-      else
-        now="7"
+        echo "【▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼打ち直します▼▼▼▼▼▼▼▼▼▼▼▼▼▼】"
+      else 
+        if [ "$final" = "1" ]; then
+          final=$day
+          echo ">>表紙の日付と同じにしました "
+          now="7"
+        else
+          now="7"
+        fi
+
       fi
       ;;
       
       "7" ) 
-      echo ———パターンを選んでください———
-      echo 1 通常 同意書
-      echo 2 通常 病理   同意書
-      echo 3 その他のパターン
-      echo ————————————————————————
-      echo -n パターン：
+      echo ———————————パターンを選んでください———————————
+      echo "        1 通常 同意書"
+      echo "        2 通常 病理   同意書"
+      echo "        3 その他のパターン"
+      echo ——————————————————————————————————————————————
+      echo -n "パターン　　："
       read pt
       if [ "$pt" = "" ]; then
         now="6"
-        echo "【       ↓  ↓  ↓  打ち直します  ↓  ↓  ↓     】"
+        echo "【▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼打ち直します▼▼▼▼▼▼▼▼▼▼▼▼▼▼】"
       else
         now="8"
       fi
@@ -227,8 +299,8 @@ dou=" 同意書・その他"
 byou="病理・手術・麻酔"
 
 printf "%s\t%s %s %s 同意書・その他\t%s\t1\t%s\n" $num $firstName $secondName $day $mai $final | pbcopy
-echo -e "$num\t$firstName $secondName $day ~同意書・その他\t$mai\t1\t$final" >> .a
-cat .a |pbcopy
+echo -e "\t$num\t$firstName $secondName $day ~同意書・その他\t$mai\t1\t$final" >> ~/.a
+cat ~/.a |pbcopy
 mv 001.pdf "$num $firstName $secondName $day$pdf"
 if [ $pt = 1 ]; then
   echo “通常　　同意書　　で処理します”
@@ -242,9 +314,9 @@ else
  for (( i = 2 ; i < $file ; i++ ))
  do
    if [ $i -gt 9 ] ;then
-    ql 0$i.pdf
+    qlmanage -p 0$i.pdf "$@" >& /dev/null&
   else
-    ql -p 00$i.pdf
+    qlmanage -p 00$i.pdf "$@" >& /dev/null&
   fi
   clear
   echo ------------------------------
@@ -293,6 +365,9 @@ fi
 mkdir "$num $firstName $secondName"
 mv $num*.pdf "$num $firstName $secondName"
 cd "$num $firstName $secondName"
+if [ "$modo" = "1" ]; then
+  echo -e $firstName$secondName"さんは"$dead2"で"$dead"に死亡を確認しました\n 最初の来院　　："$day"\n 最後の来院　　："$final"\n 死亡確認日　　："$dead"\n カルテ番号　　："$num"\n 枚数　　　　　："$mai"\n 飼い主の苗字　："$firstName"\n ペットの名前　："$secondName"\n 読み込んだ日　："`date`"\n " >> "【"$dead2"】"$dead".txt"
+fi
 allCount=$(expr $allCount + 1)
 allMai=$(expr $allMai + $mai)
 clear
